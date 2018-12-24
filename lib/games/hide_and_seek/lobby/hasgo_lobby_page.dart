@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CreateLobbyPage extends StatelessWidget {
+class CreateHasgoLobbyPage extends StatelessWidget {
   static final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
@@ -47,13 +47,13 @@ class CreateLobbyPage extends StatelessWidget {
       ));
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LobbyPage()),
+        MaterialPageRoute(builder: (context) => HasgoLobbyPage()),
       );
     }
   }
 } // CreateLobbyPage
 
-class JoinLobbyPage extends StatelessWidget {
+class JoinHasgoLobbyPage extends StatelessWidget {
   static final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
@@ -115,11 +115,11 @@ class JoinLobbyPage extends StatelessWidget {
 
 // Mock Data Used
 
-class LobbyPage extends StatefulWidget {
-  _LobbyPageState createState() => _LobbyPageState();
+class HasgoLobbyPage extends StatefulWidget {
+  _HasgoLobbyPageState createState() => _HasgoLobbyPageState();
 }
 
-class _LobbyPageState extends State<LobbyPage> {
+class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _lobbyId;
 

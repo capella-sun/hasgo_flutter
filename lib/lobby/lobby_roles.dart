@@ -1,3 +1,1 @@
-class LobbyRole {
-  static const String OWNER = 'owner', PLAYER = 'player', KICKED = 'kicked';
-}
+enum LobbyRole { OWNER, PLAYER, KICKED }
