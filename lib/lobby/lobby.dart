@@ -126,6 +126,7 @@ class _CreateLobbyState extends State<CreateLobbyPage> {
 class JoinLobbyPage extends StatelessWidget {
   static final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  String displayName, lobbyId;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,6 +153,7 @@ class JoinLobbyPage extends StatelessWidget {
                   return 'Please enter a Lobby ID.';
                 }
               },
+              onSaved: (value) => lobbyId = value,
             ),
           ),
           formPad(
@@ -163,6 +165,7 @@ class JoinLobbyPage extends StatelessWidget {
                   return 'Please enter a name.';
                 }
               },
+              onSaved: (value) => displayName = value,
             ),
           ),
           RaisedButton(
@@ -176,6 +179,7 @@ class JoinLobbyPage extends StatelessWidget {
 
   Future<void> joinLobbyPressed() async {
     if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: const Text('Joining Lobby'),
       ));
