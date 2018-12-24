@@ -3,6 +3,8 @@
 enum GameMode { HIDE_AND_SEEK }
 
 GameMode gameModeFromString(String value) {
+  assert(value != null);
+  assert(value.isNotEmpty);
   return GameMode.values
       .firstWhere((e) => e.toString().toUpperCase() == value.toUpperCase());
 }

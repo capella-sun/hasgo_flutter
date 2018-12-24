@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:hasgo_flutter/games/game_modes.dart';
+import 'package:hasgo_flutter/lobby/lobby.dart';
 // Mock Data Used
 
 class HasgoLobbyPage extends StatefulWidget {
+  HasgoLobbyPage(
+      {Key key,
+      @required this.ownerDisplayName,
+      @required this.lobbyDisplayName,
+      @required this.gameMode})
+      : super(key: key);
+  String ownerDisplayName, lobbyDisplayName;
+  GameMode gameMode;
+
   _HasgoLobbyPageState createState() => _HasgoLobbyPageState();
 }
 
 class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _lobbyId;
+  Lobby _lobby;
+  bool _loading = true;
 
   @override
   void initState() {
@@ -21,9 +33,19 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(_lobbyId ?? 'Lobby'),
+        title: Text(widget.lobbyDisplayName),
       ),
-      body: Column(
+      body: getBody(context),
+    );
+  }
+
+  Widget getBody(BuildContext context) {
+    if (_loading) {
+      return SpinKitHourGlass(
+        color: Colors.cyan,
+      );
+    } else {
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Expanded(
@@ -58,8 +80,8 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
             ],
           )
         ],
-      ),
-    );
+      );
+    }
   }
 
   List<Widget> getMockPlayers() {
@@ -83,7 +105,7 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   }
 
   void getLobbyId() async {
-    _lobbyId = '<Default Lobby Name>';
+    // _lobbyId = '<Default Lobby Name>';
     setState(() {});
   }
 }

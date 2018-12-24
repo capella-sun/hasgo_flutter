@@ -6,12 +6,19 @@ import 'package:hasgo_flutter/games/game_modes.dart';
 
 abstract class Lobby {
   List<Player> players;
+  Player owner;
 }
 
-class CreateLobbyPage extends StatelessWidget {
+class CreateLobbyPage extends StatefulWidget {
+  _CreateLobbyState createState() => _CreateLobbyState();
+}
+
+class _CreateLobbyState extends State<CreateLobbyPage> {
   static final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String gameModeString;
+  String _gameModeString;
+  String _lobbyDisplayName, _ownerDisplayName;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,26 +39,56 @@ class CreateLobbyPage extends StatelessWidget {
           formPad(
             child: TextFormField(
               decoration: InputDecoration(
-                  hintText: 'Display Name', labelText: 'Lobby Name'),
+                  hintText: 'Enter Lobby Name', labelText: 'Lobby Name'),
               validator: (value) {
                 if (value.isEmpty) {
                   return 'Please enter a name.';
                 }
               },
+              onSaved: (value) => _lobbyDisplayName = value,
             ),
           ),
           formPad(
-            child: DropdownButtonFormField(
-              onChanged: (String gameMode) => gameModeString = gameMode,
-              items: GameMode.values.map((GameMode mode) {
-                String gameMode = getGameModeDisplayName(mode); // Get Apple from `Fruit.Apple`
-                return DropdownMenuItem<String>(
-                  value: gameModeString,
-                  child: Text(gameMode),
-                );
-              }).toList(),
-            )
+            child: TextFormField(
+              decoration: InputDecoration(
+                  hintText: 'Display Name', labelText: 'Your Name'),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter a name.';
+                }
+              },
+              onSaved: (value) => _ownerDisplayName = value,
+            ),
           ),
+          formPad(
+              child: DropdownButtonFormField(
+            value: _gameModeString,
+            onChanged: (String gameMode) {
+              _gameModeString = gameMode;
+              setState(
+                  () {}); // Without this, the dropdown will not update immediately.
+            },
+            items: GameMode.values.map((GameMode mode) {
+              String gameMode =
+                  getGameModeDisplayName(mode); // Get Apple from `Fruit.Apple`
+              final enumGameMode = mode.toString();
+              return DropdownMenuItem(
+                child: Text(
+                  gameMode,
+                  style: TextStyle(color: Colors.white),
+                ),
+                value: enumGameMode,
+              );
+            }).toList(),
+            onSaved: (String value) {
+              _gameModeString = value;
+            },
+            validator: (value) {
+              if (value == null || value.toString().isEmpty) {
+                return 'Please select a Game Mode';
+              }
+            },
+          )),
           RaisedButton(
             child: const Text('Create'),
             onPressed: () async => createLobbyPressed(context),
@@ -63,12 +100,24 @@ class CreateLobbyPage extends StatelessWidget {
 
   Future<void> createLobbyPressed(BuildContext context) async {
     if (_formKey.currentState.validate()) {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: const Text('Creating Lobby'),
-      ));
+      _formKey.currentState.save();
+      
+      // _scaffoldKey.currentState.showSnackBar(SnackBar(
+      //   content: const Text('Creating Lobby'),
+      // ));
+
+      print('game mode: $_gameModeString');
+      print('lobby: $_lobbyDisplayName');
+      print('owner: $_ownerDisplayName');
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HasgoLobbyPage()),
+        MaterialPageRoute(
+            builder: (context) => HasgoLobbyPage(
+                  ownerDisplayName: _ownerDisplayName,
+                  lobbyDisplayName: _lobbyDisplayName,
+                  gameMode: gameModeFromString(_gameModeString),
+                )),
       );
     }
   }
