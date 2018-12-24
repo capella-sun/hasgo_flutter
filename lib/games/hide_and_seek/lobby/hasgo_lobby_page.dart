@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hasgo_flutter/games/game_modes.dart';
-import 'package:hasgo_flutter/lobby/lobby.dart';
+import 'package:device_id/device_id.dart';
+import 'package:hasgo_flutter/games/hide_and_seek/hasgo.dart';
+import 'package:hasgo_flutter/player/server_privileges.dart';
+import 'package:hasgo_flutter/lobby/lobby_roles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 // Mock Data Used
 
 class HasgoLobbyPage extends StatefulWidget {
@@ -19,13 +24,13 @@ class HasgoLobbyPage extends StatefulWidget {
 
 class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  Lobby _lobby;
+  HasgoLobby _lobby;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    getLobbyId();
+    initLobby();
   }
 
   @override
@@ -104,8 +109,25 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     ];
   }
 
-  void getLobbyId() async {
-    // _lobbyId = '<Default Lobby Name>';
-    setState(() {});
+  void initLobby() async {
+    final deviceId = await DeviceId.getID;
+
+    HasgoPlayer lobbyOwner = HasgoPlayer(
+      gameRole: HasgoGameRole.SEEKER,
+      serverPrivilege: ServerPrivilege.DEFAULT,
+      lobbyRole: LobbyRole.OWNER
+    )
+    .setName(widget.ownerDisplayName)
+    .setUid(deviceId);
+
+    _lobby = HasgoLobby(owner: lobbyOwner, players: [lobbyOwner]);
+
+    Firestore.instance.collection('lobbies').document()
+  .setData(jsonDecode(jsonEncode(_lobby.toJson()))); 
+  // Encoding then decoding because json_annotation decoding decodes as Map<> instead of Map<String, dynamic>.
+  // TODO: Make json_annotation decode to Map<String, dynamic> by default
+    setState(() {
+      _loading = false;
+    });
   }
 }

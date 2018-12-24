@@ -5,8 +5,9 @@ import 'package:hasgo_flutter/util/padding.dart';
 import 'package:hasgo_flutter/games/game_modes.dart';
 
 abstract class Lobby {
-  List<Player> players;
-  Player owner;
+  List getPlayers();
+  dynamic getOwner();
+  dynamic getLobbyId();
 }
 
 class CreateLobbyPage extends StatefulWidget {
