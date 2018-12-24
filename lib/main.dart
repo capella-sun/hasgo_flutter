@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'lobby/lobby_page.dart';
+import 'package:hasgo_flutter/games/hide_and_seek/lobby/lobby_page.dart';
 
 void main() => runApp(MyApp());
 
