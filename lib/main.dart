@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'lobby/lobby_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,19 +22,19 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('HaSGO'),
+        title: const Text('HaSGO'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             RaisedButton(
-              child: Text('Create'),
-              onPressed: createLobbyPressed,
+              child: const Text('Create'),
+              onPressed: () => createLobbyPressed(context),
             ),
             RaisedButton(
-              child: Text('Join'),
-              onPressed: joinLobbyOnPressed,
+              child: const Text('Join'),
+              onPressed: () => joinLobbyOnPressed(context),
             ),
           ],
         ),
@@ -46,17 +47,20 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void createLobbyPressed() {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Creating lobby...'),));
+  void createLobbyPressed(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CreateLobbyPage()),
+    );
   }
 
-  void joinLobbyOnPressed() {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Joining lobby...'),));
+  void joinLobbyOnPressed(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => JoinLobbyPage()),
+    );
   }
-  
 }
-
-
 
 /* class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
