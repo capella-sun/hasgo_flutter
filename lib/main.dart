@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hasgo_flutter/games/hide_and_seek/lobby/hasgo_lobby_page.dart';
+import 'lobby/lobby.dart';
 
 void main() => runApp(MyApp());
 
@@ -50,14 +50,14 @@ class HomePage extends StatelessWidget {
   void createLobbyPressed(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateHasgoLobbyPage()),
+      MaterialPageRoute(builder: (context) => CreateLobbyPage()),
     );
   }
 
   void joinLobbyOnPressed(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => JoinHasgoLobbyPage()),
+      MaterialPageRoute(builder: (context) => JoinLobbyPage()),
     );
   }
 }
