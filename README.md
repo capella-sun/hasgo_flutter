@@ -1,5 +1,7 @@
 # hasgo_flutter
 
+[![Build Status](https://travis-ci.com/capella-sun/hasgo_flutter.svg?branch=master)](https://travis-ci.com/capella-sun/hasgo_flutter)
+
 Flutter implementation of Hide and Seek Go
 
 ## Getting Started

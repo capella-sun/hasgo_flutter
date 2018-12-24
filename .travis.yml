@@ -1,3 +1,4 @@
+# See https://medium.com/flutter-io/test-flutter-apps-on-travis-3fd5142ecd8c
 os:
   - linux
 sudo: false
@@ -13,7 +14,7 @@ before_script:
   - git clone https://github.com/flutter/flutter.git -b beta
   - ./flutter/bin/flutter doctor
 script:
-  - ./flutter/bin/flutter test
+  - ./flutter/bin/flutter test # Run our tests
 cache:
   directories:
     - $HOME/.pub-cache
