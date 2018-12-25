@@ -123,10 +123,10 @@ class _CreateLobbyState extends State<CreateLobbyPage> {
 
       GameMode gameMode = gameModeFromString(_gameModeString);
 
-      var lobby =
+      Lobby lobby =
           await _createLobby(gameMode, _ownerDisplayName, _lobbyDisplayName);
 
-      _gotoLobby(lobby, gameMode, context);
+      _gotoLobby(lobby, lobby.getOwner(), gameMode, context);
     }
   }
 
@@ -141,14 +141,8 @@ class _CreateLobbyState extends State<CreateLobbyPage> {
 
   Future<HasgoLobby> _createHasgoLobby(GameMode gameMode,
       String ownerDisplayName, String lobbyDisplayName) async {
-    final deviceId = await DeviceId.getID;
-
-    HasgoPlayer lobbyOwner = HasgoPlayer(
-            gameRole: HasgoGameRole.SEEKER,
-            serverPrivilege: ServerPrivilege.DEFAULT,
-            lobbyRole: LobbyRole.OWNER)
-        .setName(ownerDisplayName)
-        .setUid(deviceId);
+    HasgoPlayer lobbyOwner =
+        await _getThisPlayer(ownerDisplayName, owner: true);
 
     final lobby = HasgoLobby(
         owner: lobbyOwner,
@@ -162,16 +156,45 @@ class _CreateLobbyState extends State<CreateLobbyPage> {
         .setData(jsonDecode(jsonEncode(lobby.toJson())));
     return lobby;
   }
-}
+} // CreateLobbyPage
 
-void _gotoLobby(dynamic lobby, GameMode gameMode, BuildContext context) {
+// -----------------------------------------------------
+// Methods
+// -----------------------------------------------------
+
+void _gotoLobby(
+    dynamic lobby, dynamic player, GameMode gameMode, BuildContext context) {
   switch (gameMode) {
     case GameMode.HIDE_AND_SEEK:
       _pushContext(
-          HasgoLobbyPage(
-            lobby: lobby,
-          ),
-          context);
+
+          InheritedUser(
+
+            child: HasgoLobbyPage(
+              lobby: lobby,
+            ),
+            
+            player: player as HasgoPlayer),
+
+          context
+      );
+  }
+}
+
+Future<HasgoPlayer> _getThisPlayer(String displayName,
+    {bool owner = false}) async {
+  final uid = await DeviceId.getID;
+  if (owner) {
+    return HasgoPlayer(
+            gameRole: HasgoGameRole.SEEKER,
+            serverPrivilege: ServerPrivilege.DEFAULT,
+            lobbyRole: LobbyRole.OWNER)
+        .setName(displayName)
+        .setUid(uid);
+  } else {
+    return HasgoPlayer(gameRole: HasgoGameRole.HIDER)
+        .setUid(uid)
+        .setName(displayName);
   }
 }
 
@@ -180,7 +203,11 @@ void _pushContext(Widget child, BuildContext context) {
     context,
     MaterialPageRoute(builder: (context) => child),
   );
-} // CreateLobbyPage
+}
+
+// -----------------------------------------------------
+// END
+// -----------------------------------------------------
 
 class JoinLobbyPage extends StatelessWidget {
   static final _formKey = GlobalKey<FormState>();
@@ -256,9 +283,9 @@ class JoinLobbyPage extends StatelessWidget {
 
       final lobbySnapShot = await lobbyRef.get();
       if (lobbySnapShot != null && lobbySnapShot.exists) {
-        final player = await _getThisPlayer();
+        final player = await _getThisPlayer(displayName);
         var data = lobbySnapShot.data;
-        
+
         final lobby = HasgoLobby.fromJson(data);
         if (lobby.blackList.contains(player.uid)) {
           _scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -269,18 +296,29 @@ class JoinLobbyPage extends StatelessWidget {
         } else {
           lobby.players.add(player);
           await updateLobbyBackend(lobby);
-          _gotoLobby(lobby, lobby.gameMode(), context);
+          _gotoLobby(lobby, player, lobby.gameMode(), context);
         }
       } else {
         // TODO: Implement
       }
     }
   }
-
-  Future<HasgoPlayer> _getThisPlayer() async {
-    final uid = await DeviceId.getID;
-    return HasgoPlayer(gameRole: HasgoGameRole.HIDER)
-        .setUid(uid)
-        .setName(displayName);
-  }
 } // JoinLobbyPage
+
+class InheritedUser extends InheritedWidget {
+  InheritedUser({Key key, this.child, this.player})
+      : super(key: key, child: child);
+
+  final Widget child;
+  final HasgoPlayer player;
+
+  static InheritedUser of(BuildContext context) {
+    return (context.inheritFromWidgetOfExactType(InheritedUser)
+        as InheritedUser);
+  }
+
+  @override
+  bool updateShouldNotify(InheritedUser oldWidget) {
+    return oldWidget.player.uid != player.uid;
+  }
+}
