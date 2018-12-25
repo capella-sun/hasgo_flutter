@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
+import 'hasgo_add_player.dart';
 // Mock Data Used
 
 class HasgoLobbyPage extends StatefulWidget {
@@ -34,7 +35,7 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.lobby.displayName),
+        title: Text('Lobby ${widget.lobby.lobbyId.toUpperCase()}'),
       ),
       body: getBody(context),
     );
@@ -57,7 +58,7 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
             children: <Widget>[
               RaisedButton(
                 child: const Text('Add Player'),
-                onPressed: () async => await addPlayerAction(),
+                onPressed: () async => await addPlayerAction(context),
               ),
               RaisedButton(
                 child: const Text('Start Game'),
@@ -134,31 +135,21 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     .setName('newName').setUid('playerUid');
   }
 
-  Future addPlayerAction() async {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
+  Future addPlayerAction(BuildContext context) async {
+    /* _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text('Adding Player...'),
     ));
 
     widget.lobby.players.add(_getMockPlayer());
 
-    await updateBackend();
+    await updateBackend(); */
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddHasgoPlayer(lobby: widget.lobby,)),
+    );
   }
 
-  Future updateBackend() async {
-    var data = jsonDecode(jsonEncode(widget.lobby.toJson()));
-
-    DocumentReference mLobby = await getLobbyReference();
-    await mLobby.setData(data, merge: true);
-  }
-
-  Future<DocumentReference> getLobbyReference() async {
-    var potentialLobbies = await Firestore.instance
-        .collection('lobbies')
-        .where('lobbyId', isEqualTo: widget.lobby.lobbyId)
-        .getDocuments();
-    var mLobbySnapshot = potentialLobbies.documents[0]; // Select the first lobby that meets our criterion
-    return mLobbySnapshot.reference;
-  }
+  
 
   void initLobby() async {
     // Encoding then decoding because json_annotation decoding decodes as Map<> instead of Map<String, dynamic>.

@@ -6,15 +6,42 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
 part 'hasgo.g.dart';
 
 enum HasgoGameRole { HIDER, SEEKER }
 
+// -------------------------------------
+// METHODS
+// -------------------------------------
+
 HasgoGameRole hasgoGameRoleFromString(String value) {
   return HasgoGameRole.values
       .firstWhere((e) => e.toString().toUpperCase() == value.toUpperCase());
 }
+
+Future updateLobbyBackend(HasgoLobby lobby) async {
+  var data = jsonDecode(jsonEncode(lobby.toJson()));
+
+  DocumentReference mLobby = await getLobbyReference(lobby.lobbyId);
+  await mLobby.setData(data, merge: true);
+}
+
+Future<DocumentReference> getLobbyReference(String lobbyId) async {
+  var potentialLobbies = await Firestore.instance
+      .collection('lobbies')
+      .where('lobbyId', isEqualTo: lobbyId)
+      .getDocuments();
+  var mLobbySnapshot = potentialLobbies
+      .documents[0]; // Select the first lobby that meets our criterion
+  return mLobbySnapshot.reference;
+}
+
+// -------------------------------------
+// Objects
+// -------------------------------------
 
 @JsonSerializable()
 class HasgoPlayer extends Player {
@@ -23,7 +50,11 @@ class HasgoPlayer extends Player {
   ServerPrivilege serverPrivilege;
   LobbyRole lobbyRole;
 
-  HasgoPlayer({this.gameRole, this.serverPrivilege, this.lobbyRole}) : super();
+  HasgoPlayer(
+      {this.gameRole,
+      this.serverPrivilege = ServerPrivilege.DEFAULT,
+      this.lobbyRole = LobbyRole.PLAYER})
+      : super();
 
   bool validate() {
     return (gameRole != null &&
@@ -63,7 +94,10 @@ class HasgoLobby extends Lobby {
   String displayName;
 
   HasgoLobby(
-      {@required this.owner, @required this.players, @required this.lobbyId, @required this.displayName});
+      {@required this.owner,
+      @required this.players,
+      @required this.lobbyId,
+      @required this.displayName});
 
   factory HasgoLobby.fromJson(Map<String, dynamic> json) =>
       _$HasgoLobbyFromJson(json);

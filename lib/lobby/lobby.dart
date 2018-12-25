@@ -99,14 +99,14 @@ class _CreateLobbyState extends State<CreateLobbyPage> {
           )),
           RaisedButton(
             child: const Text('Create'),
-            onPressed: () async => createLobbyPressed(context),
+            onPressed: () async => createLobbyAction(context),
           ),
         ],
       ),
     );
   }
 
-  Future<void> createLobbyPressed(BuildContext context) async {
+  Future<void> createLobbyAction(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
