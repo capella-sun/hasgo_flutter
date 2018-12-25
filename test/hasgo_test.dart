@@ -12,7 +12,11 @@ void main() {
         .setName('Todd')
         .setUid('newUid');
 
-    HasgoLobby lobby = HasgoLobby(owner: player, players: [player]);
+    HasgoLobby lobby = HasgoLobby(
+        owner: player,
+        players: [player],
+        lobbyId: 'test-id',
+        displayName: 'test-display-name');
     // print(player.toJson());
 
     Map playerJson = player.toJson();
@@ -22,6 +26,8 @@ void main() {
     Map lobbyJson = lobby.toJson();
     expect(lobbyJson['owner'], playerJson);
     expect(lobbyJson['players'][0], playerJson);
+    expect(lobbyJson['lobbyId'], 'test-id');
+    expect(lobbyJson['displayName'], 'test-display-name');
 
     // print(lobby.toJson());
   });
@@ -31,6 +37,5 @@ void main() {
     final lobbyId = HasgoLobby.makeNewId();
 
     expect(lobbyId.length, expectedLobbyIdLength);
-
   });
 }

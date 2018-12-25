@@ -60,9 +60,10 @@ class HasgoLobby extends Lobby {
   @JsonKey(toJson: playersToJson)
   List<HasgoPlayer> players;
   String lobbyId = 'lobby-id';
+  String displayName;
 
   HasgoLobby(
-      {@required this.owner, @required this.players, @required this.lobbyId});
+      {@required this.owner, @required this.players, @required this.lobbyId, @required this.displayName});
 
   factory HasgoLobby.fromJson(Map<String, dynamic> json) =>
       _$HasgoLobbyFromJson(json);

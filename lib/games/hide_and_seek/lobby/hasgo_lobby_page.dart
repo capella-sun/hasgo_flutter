@@ -12,21 +12,15 @@ import 'package:uuid/uuid_util.dart';
 // Mock Data Used
 
 class HasgoLobbyPage extends StatefulWidget {
-  HasgoLobbyPage(
-      {Key key,
-      @required this.ownerDisplayName,
-      @required this.lobbyDisplayName,
-      @required this.gameMode})
-      : super(key: key);
-  String ownerDisplayName, lobbyDisplayName;
-  GameMode gameMode;
+  HasgoLobbyPage({Key key, @required this.lobby}) : super(key: key);
+
+  HasgoLobby lobby;
 
   _HasgoLobbyPageState createState() => _HasgoLobbyPageState();
 }
 
 class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  HasgoLobby _lobby;
   bool _loading = true;
 
   @override
@@ -40,7 +34,7 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.lobbyDisplayName),
+        title: Text(widget.lobby.displayName),
       ),
       body: getBody(context),
     );
@@ -112,26 +106,6 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   }
 
   void initLobby() async {
-    final deviceId = await DeviceId.getID;
-
-    HasgoPlayer lobbyOwner = HasgoPlayer(
-            gameRole: HasgoGameRole.SEEKER,
-            serverPrivilege: ServerPrivilege.DEFAULT,
-            lobbyRole: LobbyRole.OWNER)
-        .setName(widget.ownerDisplayName)
-        .setUid(deviceId);
-
-    final uuid = Uuid();
-
-    _lobby = HasgoLobby(
-        owner: lobbyOwner,
-        players: [lobbyOwner],
-        lobbyId: HasgoLobby.makeNewId());
-
-    Firestore.instance
-        .collection('lobbies')
-        .document()
-        .setData(jsonDecode(jsonEncode(_lobby.toJson())));
     // Encoding then decoding because json_annotation decoding decodes as Map<> instead of Map<String, dynamic>.
     // TODO: Make json_annotation decode to Map<String, dynamic> by default
     setState(() {
