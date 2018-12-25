@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'lobby/lobby.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() => runApp(MyApp());
 
@@ -7,11 +8,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    initFirestore();
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData.dark(),
       home: HomePage(),
     );
+  }
+
+  void initFirestore() {
+    Firestore.instance.settings(timestampsInSnapshotsEnabled: true);
   }
 }
 
