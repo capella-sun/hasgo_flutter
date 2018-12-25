@@ -57,10 +57,7 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
             children: <Widget>[
               RaisedButton(
                 child: const Text('Add Player'),
-                onPressed: () =>
-                    _scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text('Add Player'),
-                    )),
+                onPressed: () async => await addPlayerAction(),
               ),
               RaisedButton(
                 child: const Text('Start Game'),
@@ -84,10 +81,6 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   }
 
   Widget getPlayers() {
-    /* return ListView(
-      children: getMockPlayers(),
-    ); */
-
     return StreamBuilder(
       stream: Firestore.instance
           .collection('lobbies')
@@ -134,6 +127,37 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
         trailing: const Icon(Icons.cancel),
       ),
     ];
+  }
+
+  HasgoPlayer _getMockPlayer() {
+    return HasgoPlayer(lobbyRole: LobbyRole.PLAYER, serverPrivilege: ServerPrivilege.DEFAULT, gameRole: HasgoGameRole.HIDER)
+    .setName('newName').setUid('playerUid');
+  }
+
+  Future addPlayerAction() async {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Text('Adding Player...'),
+    ));
+
+    widget.lobby.players.add(_getMockPlayer());
+
+    await updateBackend();
+  }
+
+  Future updateBackend() async {
+    var data = jsonDecode(jsonEncode(widget.lobby.toJson()));
+
+    DocumentReference mLobby = await getLobbyReference();
+    await mLobby.setData(data, merge: true);
+  }
+
+  Future<DocumentReference> getLobbyReference() async {
+    var potentialLobbies = await Firestore.instance
+        .collection('lobbies')
+        .where('lobbyId', isEqualTo: widget.lobby.lobbyId)
+        .getDocuments();
+    var mLobbySnapshot = potentialLobbies.documents[0]; // Select the first lobby that meets our criterion
+    return mLobbySnapshot.reference;
   }
 
   void initLobby() async {
