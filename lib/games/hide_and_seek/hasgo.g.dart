@@ -62,7 +62,7 @@ const _$LobbyRoleEnumMap = <LobbyRole, dynamic>{
   LobbyRole.KICKED: 'KICKED'
 };
 
-HasgoLobby _$HasgoLobbyFromJson(Map json) {
+HasgoLobby _$HasgoLobbyFromJson(Map<String, dynamic> json) {
   return HasgoLobby(
       owner: HasgoLobby.ownerFromJson(json['owner'] as Map<String, dynamic>),
       players: HasgoLobby.playersFromJson(
