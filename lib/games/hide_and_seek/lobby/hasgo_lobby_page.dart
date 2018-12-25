@@ -7,6 +7,8 @@ import 'package:hasgo_flutter/player/server_privileges.dart';
 import 'package:hasgo_flutter/lobby/lobby_roles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_util.dart';
 // Mock Data Used
 
 class HasgoLobbyPage extends StatefulWidget {
@@ -113,19 +115,25 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     final deviceId = await DeviceId.getID;
 
     HasgoPlayer lobbyOwner = HasgoPlayer(
-      gameRole: HasgoGameRole.SEEKER,
-      serverPrivilege: ServerPrivilege.DEFAULT,
-      lobbyRole: LobbyRole.OWNER
-    )
-    .setName(widget.ownerDisplayName)
-    .setUid(deviceId);
+            gameRole: HasgoGameRole.SEEKER,
+            serverPrivilege: ServerPrivilege.DEFAULT,
+            lobbyRole: LobbyRole.OWNER)
+        .setName(widget.ownerDisplayName)
+        .setUid(deviceId);
 
-    _lobby = HasgoLobby(owner: lobbyOwner, players: [lobbyOwner]);
+    final uuid = Uuid();
 
-    Firestore.instance.collection('lobbies').document()
-  .setData(jsonDecode(jsonEncode(_lobby.toJson()))); 
-  // Encoding then decoding because json_annotation decoding decodes as Map<> instead of Map<String, dynamic>.
-  // TODO: Make json_annotation decode to Map<String, dynamic> by default
+    _lobby = HasgoLobby(
+        owner: lobbyOwner,
+        players: [lobbyOwner],
+        lobbyId: HasgoLobby.makeNewId());
+
+    Firestore.instance
+        .collection('lobbies')
+        .document()
+        .setData(jsonDecode(jsonEncode(_lobby.toJson())));
+    // Encoding then decoding because json_annotation decoding decodes as Map<> instead of Map<String, dynamic>.
+    // TODO: Make json_annotation decode to Map<String, dynamic> by default
     setState(() {
       _loading = false;
     });

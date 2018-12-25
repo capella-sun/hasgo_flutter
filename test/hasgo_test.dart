@@ -25,4 +25,12 @@ void main() {
 
     // print(lobby.toJson());
   });
+
+  test('Lobby Uuid Test', () {
+    final expectedLobbyIdLength = 4;
+    final lobbyId = HasgoLobby.makeNewId();
+
+    expect(lobbyId.length, expectedLobbyIdLength);
+
+  });
 }

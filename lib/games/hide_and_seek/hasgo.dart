@@ -3,6 +3,9 @@ import 'package:hasgo_flutter/player/server_privileges.dart';
 import 'package:hasgo_flutter/lobby/lobby_roles.dart';
 import 'package:hasgo_flutter/lobby/lobby.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_util.dart';
 
 part 'hasgo.g.dart';
 
@@ -15,7 +18,6 @@ HasgoGameRole hasgoGameRoleFromString(String value) {
 
 @JsonSerializable()
 class HasgoPlayer extends Player {
-
   // TODO: Need to make deserializers for enums to attach enum prefix
   HasgoGameRole gameRole;
   ServerPrivilege serverPrivilege;
@@ -59,7 +61,8 @@ class HasgoLobby extends Lobby {
   List<HasgoPlayer> players;
   String lobbyId = 'lobby-id';
 
-  HasgoLobby({this.owner, this.players});
+  HasgoLobby(
+      {@required this.owner, @required this.players, @required this.lobbyId});
 
   factory HasgoLobby.fromJson(Map<String, dynamic> json) =>
       _$HasgoLobbyFromJson(json);
@@ -97,5 +100,15 @@ class HasgoLobby extends Lobby {
       ret.add(player.toJson());
     }
     return ret;
+  }
+
+  /// Returns a 4-digit id from a v4 Uuid
+  static String getIdFromUuid(String uuid) {
+    return uuid.substring(9, 13);
+  }
+
+  static String makeNewId() {
+    final uuid = Uuid().v4(options: {'rng': UuidUtil.cryptoRNG});
+    return getIdFromUuid(uuid);
   }
 }
