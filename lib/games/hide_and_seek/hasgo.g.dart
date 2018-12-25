@@ -73,7 +73,9 @@ HasgoLobby _$HasgoLobbyFromJson(Map<String, dynamic> json) {
               : HasgoPlayer.fromJson(e as Map<String, dynamic>))
           ?.toList(),
       lobbyId: json['lobbyId'] as String,
-      displayName: json['displayName'] as String);
+      displayName: json['displayName'] as String)
+    ..blackList =
+        (json['blackList'] as List)?.map((e) => e as String)?.toList();
 }
 
 Map<String, dynamic> _$HasgoLobbyToJson(HasgoLobby instance) =>
@@ -85,5 +87,6 @@ Map<String, dynamic> _$HasgoLobbyToJson(HasgoLobby instance) =>
           ? null
           : HasgoLobby.playersToJson(instance.players),
       'lobbyId': instance.lobbyId,
-      'displayName': instance.displayName
+      'displayName': instance.displayName,
+      'blackList': instance.blackList
     };

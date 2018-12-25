@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hasgo_flutter/games/hide_and_seek/hasgo.dart';
 import 'package:hasgo_flutter/util/padding.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class AddHasgoPlayer extends StatefulWidget {
   AddHasgoPlayer({@required this.lobby});
@@ -80,8 +81,12 @@ class _AddHasgoPlayerState extends State<AddHasgoPlayer> {
   Future addPlayerAction(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      HasgoPlayer playerToAdd = HasgoPlayer(gameRole: _role).setName(_name).setUid('manually-entered');
+      HasgoPlayer playerToAdd = HasgoPlayer(gameRole: _role).setName(_name).setUid(HasgoPlayer.MANUAL_UID);
       widget.lobby.players.add(playerToAdd);
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: SpinKitRotatingCircle(color: Colors.blueGrey,),
+        duration: Duration(seconds: 1),
+      ));
       await updateLobbyBackend(widget.lobby);
       Navigator.of(context).pop();
     }

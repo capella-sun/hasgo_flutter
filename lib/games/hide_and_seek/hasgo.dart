@@ -50,6 +50,9 @@ class HasgoPlayer extends Player {
   ServerPrivilege serverPrivilege;
   LobbyRole lobbyRole;
 
+  @JsonKey(ignore: true)
+  static final String MANUAL_UID = 'manually-entered';
+
   HasgoPlayer(
       {this.gameRole,
       this.serverPrivilege = ServerPrivilege.DEFAULT,
@@ -92,6 +95,8 @@ class HasgoLobby extends Lobby {
   List<HasgoPlayer> players;
   String lobbyId = 'lobby-id';
   String displayName;
+  /// This contains a list of blacklisted player uids
+  List<String> blackList = [];
 
   HasgoLobby(
       {@required this.owner,

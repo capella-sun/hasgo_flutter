@@ -98,10 +98,16 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
           return ListView.builder(
             itemCount: doc['players'].length,
             itemBuilder: (context, index) {
+              var player = doc['players'][index];
               return ListTile(
                 leading: const Icon(Icons.portrait),
-                title: Text(doc['players'][index]['name']),
-                trailing: const Icon(Icons.cancel),
+                title: Text(player['name']),
+                trailing: GestureDetector(
+                  onTap: () async {
+                    await kickPlayerAction(index, player);
+                  },
+                  child: const Icon(Icons.cancel),
+                ),
               );
             },
           );
@@ -131,8 +137,29 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
   }
 
   HasgoPlayer _getMockPlayer() {
-    return HasgoPlayer(lobbyRole: LobbyRole.PLAYER, serverPrivilege: ServerPrivilege.DEFAULT, gameRole: HasgoGameRole.HIDER)
-    .setName('newName').setUid('playerUid');
+    return HasgoPlayer(
+            lobbyRole: LobbyRole.PLAYER,
+            serverPrivilege: ServerPrivilege.DEFAULT,
+            gameRole: HasgoGameRole.HIDER)
+        .setName('newName')
+        .setUid('playerUid');
+  }
+
+  Future kickPlayerAction(int index, player) async {
+    if (player['lobbyRole'] != 'OWNER' &&
+        player['lobbyRole'] != LobbyRole.OWNER) {
+      if (player['uid'] != HasgoPlayer.MANUAL_UID) {
+        widget.lobby.blackList.add(player['uid']);
+      }
+
+      widget.lobby.players.removeAt(index);
+      await updateLobbyBackend(widget.lobby);
+    } else {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text('Can\'t kick the lobby owner!'),
+        duration: Duration(seconds: 1),
+      ));
+    }
   }
 
   Future addPlayerAction(BuildContext context) async {
@@ -145,11 +172,12 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
     await updateBackend(); */
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddHasgoPlayer(lobby: widget.lobby,)),
+      MaterialPageRoute(
+          builder: (context) => AddHasgoPlayer(
+                lobby: widget.lobby,
+              )),
     );
   }
-
-  
 
   void initLobby() async {
     // Encoding then decoding because json_annotation decoding decodes as Map<> instead of Map<String, dynamic>.
