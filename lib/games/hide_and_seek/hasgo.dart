@@ -1,3 +1,4 @@
+import 'package:hasgo_flutter/games/game_modes.dart';
 import 'package:hasgo_flutter/player/player.dart';
 import 'package:hasgo_flutter/player/server_privileges.dart';
 import 'package:hasgo_flutter/lobby/lobby_roles.dart';
@@ -29,11 +30,17 @@ Future updateLobbyBackend(HasgoLobby lobby) async {
   await mLobby.setData(data, merge: true);
 }
 
+/// Fetches the first lobby reference for the given lobby ID.
+/// Returns `null` if no matching lobbies are found
 Future<DocumentReference> getLobbyReference(String lobbyId) async {
   var potentialLobbies = await Firestore.instance
       .collection('lobbies')
       .where('lobbyId', isEqualTo: lobbyId)
       .getDocuments();
+  if (potentialLobbies.documents.length == 0) {
+    // No Matching lobbies found
+    return null; 
+  }
   var mLobbySnapshot = potentialLobbies
       .documents[0]; // Select the first lobby that meets our criterion
   return mLobbySnapshot.reference;
@@ -89,12 +96,13 @@ class HasgoPlayer extends Player {
 /// The owner is NOT added to the list of players internally
 @JsonSerializable()
 class HasgoLobby extends Lobby {
-  @JsonKey(toJson: ownerToJson)
+  @JsonKey(toJson: ownerToJson, fromJson: ownerFromJson, nullable: false)
   HasgoPlayer owner;
-  @JsonKey(toJson: playersToJson)
+  @JsonKey(toJson: playersToJson, fromJson: playersFromJson, nullable: false)
   List<HasgoPlayer> players;
   String lobbyId = 'lobby-id';
   String displayName;
+
   /// This contains a list of blacklisted player uids
   List<String> blackList = [];
 
@@ -104,8 +112,15 @@ class HasgoLobby extends Lobby {
       @required this.lobbyId,
       @required this.displayName});
 
-  factory HasgoLobby.fromJson(Map<String, dynamic> json) =>
-      _$HasgoLobbyFromJson(json);
+  factory HasgoLobby.fromJson(Map<String, dynamic> json) {
+    json["owner"] = Map<String, dynamic>.from(json["owner"]);
+
+    json["players"] = (json['players'] as List)
+        ?.map((e) => e == null ? null : Map<String, dynamic>.from(e))
+        ?.toList();
+
+    return _$HasgoLobbyFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$HasgoLobbyToJson(this);
 
@@ -133,6 +148,10 @@ class HasgoLobby extends Lobby {
     return owner.toJson();
   }
 
+  static HasgoPlayer ownerFromJson(Map<String, dynamic> json) {
+    return HasgoPlayer.fromJson(json);
+  }
+
   static List<Map<String, dynamic>> playersToJson(List<HasgoPlayer> players) {
     // TODO: Implement
     List<Map<String, dynamic>> ret = [];
@@ -150,5 +169,18 @@ class HasgoLobby extends Lobby {
   static String makeNewId() {
     final uuid = Uuid().v4(options: {'rng': UuidUtil.cryptoRNG});
     return getIdFromUuid(uuid);
+  }
+
+  @override
+  GameMode gameMode() {
+    return GameMode.HIDE_AND_SEEK;
+  }
+
+  static List<HasgoPlayer> playersFromJson(List<Map<String, dynamic>> json) {
+    List<HasgoPlayer> players = [];
+    for (var player in json) {
+      players.add(ownerFromJson(player));
+    }
+    return players;
   }
 }

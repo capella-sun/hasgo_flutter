@@ -15,6 +15,9 @@ abstract class Lobby {
   List getPlayers();
   dynamic getOwner();
   dynamic getLobbyId();
+
+  /// Should return the game mode of the lobby
+  GameMode gameMode();
 }
 
 class CreateLobbyPage extends StatefulWidget {
@@ -159,24 +162,24 @@ class _CreateLobbyState extends State<CreateLobbyPage> {
         .setData(jsonDecode(jsonEncode(lobby.toJson())));
     return lobby;
   }
+}
 
-  void _gotoLobby(dynamic lobby, GameMode gameMode, BuildContext context) {
-    switch (gameMode) {
-      case GameMode.HIDE_AND_SEEK:
-        _pushContext(
-            HasgoLobbyPage(
-              lobby: lobby,
-            ),
-            context);
-    }
+void _gotoLobby(dynamic lobby, GameMode gameMode, BuildContext context) {
+  switch (gameMode) {
+    case GameMode.HIDE_AND_SEEK:
+      _pushContext(
+          HasgoLobbyPage(
+            lobby: lobby,
+          ),
+          context);
   }
+}
 
-  void _pushContext(Widget child, BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => child),
-    );
-  }
+void _pushContext(Widget child, BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => child),
+  );
 } // CreateLobbyPage
 
 class JoinLobbyPage extends StatelessWidget {
@@ -190,11 +193,11 @@ class JoinLobbyPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Join Lobby'),
       ),
-      body: _getForm(),
+      body: _getForm(context),
     );
   }
 
-  Widget _getForm() {
+  Widget _getForm(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
@@ -226,19 +229,58 @@ class JoinLobbyPage extends StatelessWidget {
           ),
           RaisedButton(
             child: const Text('Join'),
-            onPressed: joinLobbyPressed,
+            onPressed: () async => joinLobbyPressed(context),
           ),
         ],
       ),
     );
   }
 
-  Future<void> joinLobbyPressed() async {
+  Future<void> joinLobbyPressed(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: const Text('Joining Lobby'),
+        duration: const Duration(seconds: 1),
       ));
+
+      final lobbyRef = await getLobbyReference(lobbyId);
+
+      if (lobbyRef == null) {
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: const Text('Hmm. We can\'t find that lobby!'),
+          duration: const Duration(seconds: 1),
+        ));
+        return;
+      }
+
+      final lobbySnapShot = await lobbyRef.get();
+      if (lobbySnapShot != null && lobbySnapShot.exists) {
+        final player = await _getThisPlayer();
+        var data = lobbySnapShot.data;
+        
+        final lobby = HasgoLobby.fromJson(data);
+        if (lobby.blackList.contains(player.uid)) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: const Text('You\'ve been kicked from this lobby!'),
+            duration: const Duration(seconds: 1),
+          ));
+          return;
+        } else {
+          lobby.players.add(player);
+          await updateLobbyBackend(lobby);
+          _gotoLobby(lobby, lobby.gameMode(), context);
+        }
+      } else {
+        // TODO: Implement
+      }
     }
+  }
+
+  Future<HasgoPlayer> _getThisPlayer() async {
+    final uid = await DeviceId.getID;
+    return HasgoPlayer(gameRole: HasgoGameRole.HIDER)
+        .setUid(uid)
+        .setName(displayName);
   }
 } // JoinLobbyPage

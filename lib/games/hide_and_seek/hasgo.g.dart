@@ -62,16 +62,11 @@ const _$LobbyRoleEnumMap = <LobbyRole, dynamic>{
   LobbyRole.KICKED: 'KICKED'
 };
 
-HasgoLobby _$HasgoLobbyFromJson(Map<String, dynamic> json) {
+HasgoLobby _$HasgoLobbyFromJson(Map json) {
   return HasgoLobby(
-      owner: json['owner'] == null
-          ? null
-          : HasgoPlayer.fromJson(json['owner'] as Map<String, dynamic>),
-      players: (json['players'] as List)
-          ?.map((e) => e == null
-              ? null
-              : HasgoPlayer.fromJson(e as Map<String, dynamic>))
-          ?.toList(),
+      owner: HasgoLobby.ownerFromJson(json['owner'] as Map<String, dynamic>),
+      players: HasgoLobby.playersFromJson(
+          json['players'] as List<Map<String, dynamic>>),
       lobbyId: json['lobbyId'] as String,
       displayName: json['displayName'] as String)
     ..blackList =
@@ -80,12 +75,8 @@ HasgoLobby _$HasgoLobbyFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$HasgoLobbyToJson(HasgoLobby instance) =>
     <String, dynamic>{
-      'owner': instance.owner == null
-          ? null
-          : HasgoLobby.ownerToJson(instance.owner),
-      'players': instance.players == null
-          ? null
-          : HasgoLobby.playersToJson(instance.players),
+      'owner': HasgoLobby.ownerToJson(instance.owner),
+      'players': HasgoLobby.playersToJson(instance.players),
       'lobbyId': instance.lobbyId,
       'displayName': instance.displayName,
       'blackList': instance.blackList
