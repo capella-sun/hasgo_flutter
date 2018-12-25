@@ -50,9 +50,7 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Expanded(
-            child: ListView(
-              children: getMockPlayers(),
-            ),
+            child: getPlayers(),
           ),
           ButtonBar(
             alignment: MainAxisAlignment.center,
@@ -83,6 +81,39 @@ class _HasgoLobbyPageState extends State<HasgoLobbyPage> {
         ],
       );
     }
+  }
+
+  Widget getPlayers() {
+    /* return ListView(
+      children: getMockPlayers(),
+    ); */
+
+    return StreamBuilder(
+      stream: Firestore.instance
+          .collection('lobbies')
+          .where('lobbyId', isEqualTo: widget.lobby.lobbyId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return SpinKitChasingDots(
+            color: Colors.blueGrey,
+          );
+        } else {
+          // Get first lobby that meets the requirements
+          DocumentSnapshot doc = snapshot.data.documents[0];
+          return ListView.builder(
+            itemCount: doc['players'].length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: const Icon(Icons.portrait),
+                title: Text(doc['players'][index]['name']),
+                trailing: const Icon(Icons.cancel),
+              );
+            },
+          );
+        }
+      },
+    );
   }
 
   List<Widget> getMockPlayers() {
