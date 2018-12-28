@@ -1,14 +1,15 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:hasgo_flutter/games/game_modes.dart';
+import 'package:hasgo_flutter/lobby/lobby.dart';
+import 'package:hasgo_flutter/lobby/lobby_roles.dart';
 import 'package:hasgo_flutter/player/player.dart';
 import 'package:hasgo_flutter/player/server_privileges.dart';
-import 'package:hasgo_flutter/lobby/lobby_roles.dart';
-import 'package:hasgo_flutter/lobby/lobby.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:convert';
 
 part 'hasgo.g.dart';
 

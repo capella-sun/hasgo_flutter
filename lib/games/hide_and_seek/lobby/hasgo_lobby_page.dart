@@ -1,14 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hasgo_flutter/games/game_modes.dart';
-import 'package:device_id/device_id.dart';
 import 'package:hasgo_flutter/games/hide_and_seek/hasgo.dart';
-import 'package:hasgo_flutter/player/server_privileges.dart';
 import 'package:hasgo_flutter/lobby/lobby_roles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:convert';
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
+import 'package:hasgo_flutter/player/server_privileges.dart';
+
 import 'hasgo_add_player.dart';
 // Mock Data Used
 
